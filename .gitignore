@@ -24,4 +24,23 @@ dist-ssr
 *.sln
 *.sw?
 
+# Python
+env/
+__pycache__/
+*.pyc
+
+# Node.js
+node_modules/
+dist/
+.vite/
+.vite-temp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# その他
+*.log
+
+
 
