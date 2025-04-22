@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 # CORSエラーを防ぐため
 from fastapi.middleware.cors import CORSMiddleware
 
 from typing import List
-from models import Word, WordCreate
+from app.models import Word, WordCreate
 
 app = FastAPI()
 
@@ -16,16 +16,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#エンドポイントの設定 
+@app.get("/")
+def read_root():
+    return {"message": "FastAPI is working!"}
+
+# 仮のデータベース(インメモリ)
 words_db: List[Word] = []
 next_id = 1
 
 @app.post("/words", response_model=Word)
 def create_word(word: WordCreate):
     global next_id
+    # >>> id: word11 id: word2
+    # print(dict)であれば{key1: value1, key2: value2}となり、**word.dict()では展開が行われている
     new_word = Word(id=next_id, **word.dict())
     words_db.append(new_word)
     next_id += 1
-    return new word
+    return new_word
 
 @app.get("/words", response_model=List[Word])
 def get_words():
