@@ -7,7 +7,7 @@ from app.models import Word, WordCreate
 
 app = FastAPI()
 
-# React側のURLを許可
+#CORS設定 React側のURLを許可
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # ← ReactのURL
@@ -28,7 +28,7 @@ next_id = 1
 @app.post("/words", response_model=Word)
 def create_word(word: WordCreate):
     global next_id
-    # >>> id: word11 id: word2
+    # >>> id: word11 id: word2 グローバルなIDカウンタでユニークID管理
     # print(dict)であれば{key1: value1, key2: value2}となり、**word.dict()では展開が行われている
     new_word = Word(id=next_id, **word.dict())
     words_db.append(new_word)

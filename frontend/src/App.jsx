@@ -2,6 +2,8 @@ import React from 'react';
 import { useState, useEffect } from 'react'
 import './App.css'
 
+// ルーティング設定だけを記述
+
 function App() {
   // 入力フォーム用ステート
   const[word, setWord] = useState("");
