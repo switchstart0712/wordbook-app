@@ -1,5 +1,7 @@
 // 一覧表示ページ
 // src/pages/Wordbook.jsx
+import React from "react";
+
 function Wordbook() {
     return <h2>単語帳ページ（準備中）</h2>;
   }

@@ -1,6 +1,7 @@
 // 登録フォームページ
 import React from "react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Home() {
   // 入力フォーム用ステート
@@ -43,12 +44,14 @@ function Home() {
 
   return (
     <>
-      <h1>Wordbook for me</h1>
-        <button type="submit">Web検索</button>
-        <button type="submit">単語帳</button>
-        <button type="submit">クイズ</button>
+    <h1>Wordbook for me</h1>
+      <nav>
+        <Link to="/search"><button>Web検索</button></Link>
+        <Link to="/wordbook"><button>単語帳</button></Link>
+        <Link to="/quiz"><button>クイズ</button></Link>
+      </nav>
     </>
-  );
+  );  
 }
 
 export default Home;
