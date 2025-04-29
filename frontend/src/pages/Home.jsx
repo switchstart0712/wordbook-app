@@ -16,7 +16,7 @@ function Home() {
   }, []);
 
   // GETリクエスト
-  const fetchWords = async (e) => {
+  const fetchWords = async () => {
     const res = await fetch("http://localhost:8000/words");
     const data = await res.json();
     setWords(data);
@@ -25,35 +25,29 @@ function Home() {
   // POSTリクエスト
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await fetch("http://localhost:8000/words", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ word, meaning }),
-    });
+    try {
+      await fetch("http://localhost:8000/words", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word, meaning }),
+      });
 
-    // 入力欄クリア & 一覧更新
-    setWord("");
-    setMeaning("");
-    fetchWords();
+      // 入力欄クリア & 一覧更新
+      setWord("");
+      setMeaning("");
+      fetchWords();
+    } catch (err) {
+      console.error("登録に失敗しました", err);
+    }
   };
 
   return (
-    <div>
-      <h1>英単語 登録ページ</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="英単語"
-          value={word}
-          onChange={(e) => setWord(e.target.value)}
-        />
-        <input
-          placeholder="意味"
-          value={meaning}
-          onChange={(e) => setMeaning(e.target.value)}
-        />
-        <button type="submit">登録</button>
-      </form>
-    </div>
+    <>
+      <h1>Wordbook for me</h1>
+        <button type="submit">Web検索</button>
+        <button type="submit">単語帳</button>
+        <button type="submit">クイズ</button>
+    </>
   );
 }
 

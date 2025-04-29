@@ -8,11 +8,6 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/wordbook">単語帳</Link> |{" "}
-        <Link to="/quiz">クイズ</Link>
-      </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/wordbook" element={<Wordbook />} />
