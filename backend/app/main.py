@@ -25,6 +25,11 @@ def read_root():
 words_db: List[Word] = []
 next_id = 1
 
+
+@app.get("/words", response_model=List[Word])
+def get_words():
+    return words_db
+
 @app.post("/words", response_model=Word)
 def create_word(word: WordCreate):
     global next_id
@@ -34,7 +39,3 @@ def create_word(word: WordCreate):
     words_db.append(new_word)
     next_id += 1
     return new_word
-
-@app.get("/words", response_model=List[Word])
-def get_words():
-    return words_db
