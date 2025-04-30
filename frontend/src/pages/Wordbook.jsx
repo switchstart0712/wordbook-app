@@ -1,7 +1,8 @@
 // 一覧表示ページ
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function Wordbook() {
+  
   const [words, setWords] = useState([
     {
       id: 1,
@@ -19,11 +20,27 @@ function Wordbook() {
     },
   ]);
 
-  //音声を再生する
-  const handleSpeak = (text) => {
-    const voices = speechSynthesis.getVoices();
-    const voice = voices.find((v) => v.name === "Google US English");
+  const [voice, setVoice] = useState(null);
 
+  // ✅ 音声読み込み（初回だけ）
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = speechSynthesis.getVoices();
+      const enVoice = voices.find(v => v.lang === "en-US" && v.name.includes("Google"));
+      if (enVoice) {
+        setVoice(enVoice);
+      } else {
+        console.warn("音声がまだ読み込まれていません");
+      }
+    };
+
+    loadVoices(); // 初回実行
+
+    // イベントで再取得（Chromeなどで遅延するため）
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
+  const handleSpeak = (text) => {
     if (!voice) {
       console.error("音声が見つかりません");
       return;
@@ -31,16 +48,17 @@ function Wordbook() {
 
     const utter = new SpeechSynthesisUtterance(text);
     utter.voice = voice;
-    utterance.lang = "en-US";
+    utter.lang = "en-US";
+    utter.volume = 1;
+    utter.pitch = 1;
+    utter.rate = 1;
 
-    utter.onstart = () => console.log(`発音中：${text}`);
-    utter.onerror = (e) => console.error("エラー：", e);
+    utter.onstart = () => console.log(`発音開始：${text}`);
+    utter.onerror = (e) => console.error("発音エラー:", e);
 
-    speechSynthesis.cancel(); //キューをリセット
+    speechSynthesis.cancel();
     speechSynthesis.speak(utter);
   };
-
-  
 
   return (
     <div style={{ padding: "2rem" }}>
