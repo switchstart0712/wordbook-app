@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 
 function Wordbook() {
-  
   const [words, setWords] = useState([
     {
       id: 1,
@@ -22,11 +21,43 @@ function Wordbook() {
 
   const [voice, setVoice] = useState(null);
 
+  //編集
+  const [editId, setEditId] = useState(null);
+  const [editWord, setEditWord] = useState("");
+  const [editMeaning, setEditMeaning] = useState("");
+
+  const handleEdit = (word) => {
+    setEditId(word.id);
+    setEditWord(word.word);
+    setEditMeaning(word.meaning);
+  };
+
+  const handleSave = () => {
+    setWords((prevwords) =>
+      prevwords.map((word) =>
+        word.id == editId
+          ? { ...word, word: editWord, meaning: editMeaning }
+          : word
+      )
+    );
+    setEditId(null); //編集終了
+  };
+
+  //削除
+  const handleDelete = (id) => {
+    const confirmed = window.confirm("この単語を削除しますか？");
+    if (!confirmed) return;
+
+    setWords((prevwords) => prevwords.filter((word) => word.id !== id));
+  };
+
   // ✅ 音声読み込み（初回だけ）
   useEffect(() => {
     const loadVoices = () => {
       const voices = speechSynthesis.getVoices();
-      const enVoice = voices.find(v => v.lang === "en-US" && v.name.includes("Google"));
+      const enVoice = voices.find(
+        (v) => v.lang === "en-US" && v.name.includes("Google")
+      );
       if (enVoice) {
         setVoice(enVoice);
       } else {
@@ -84,15 +115,47 @@ function Wordbook() {
           <tbody>
             {words.map((item) => (
               <tr key={item.id}>
-                <td>{item.word}</td>
-                <td>{item.meaning}</td>
+                <td>
+                  {editId === item.id ? (
+                    <input
+                      value={editWord}
+                      onChange={(e) => setEditWord(e.target.value)}
+                    />
+                  ) : (
+                    item.word
+                  )}
+                </td>
+                <td>
+                  {editId === item.id ? (
+                    <input
+                      value={editMeaning}
+                      onChange={(e) => setEditMeaning(e.target.value)}
+                    />
+                  ) : (
+                    item.meaning
+                  )}
+                </td>
                 <td>
                   <button onClick={() => handleSpeak(item.word)}>🔊</button>
                 </td>
                 <td>{item.memo}</td>
                 <td>{item.mistakeCount}</td>
                 <td>
-                  <button disabled>編集</button> <button disabled>削除</button>
+                  {editId === item.id ? (
+                    <>
+                      <button onClick={handleSave}>保存</button>
+                      <button onClick={() => setEditId(null)}>
+                        キャンセル
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => handleEdit(item)}>編集</button>
+                      <button onClick={() => handleDelete(item.id)}>
+                        削除
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
