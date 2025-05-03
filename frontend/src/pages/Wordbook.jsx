@@ -25,23 +25,75 @@ function Wordbook() {
   const [editId, setEditId] = useState(null);
   const [editWord, setEditWord] = useState("");
   const [editMeaning, setEditMeaning] = useState("");
+  const [editMemo, setEditMemo] = useState("");
+  //編集中かどうかの状態管理 
+  const [isEditing, setIsEditing] = useState(false);
+  //新しい単語登録用のStateを定義
+  const [newWord, setNewWord] = useState("");
+  const [newMeaning, setNewMeaning] = useState("");
+  const [newMemo, setNewMemo] = useState("");
+  
 
   const handleEdit = (word) => {
-    setEditId(word.id);
+    setIsEditing(true); //新規登録ボタンを無効に
+    setEditId(word.id); //IDベースで編集対象を特定
     setEditWord(word.word);
     setEditMeaning(word.meaning);
+    setEditMemo(word.memo);
   };
 
   const handleSave = () => {
     setWords((prevwords) =>
       prevwords.map((word) =>
-        word.id == editId
-          ? { ...word, word: editWord, meaning: editMeaning }
+        word.id === editId //IDで対象を照合
+          ? { ...word, word: editWord, meaning: editMeaning, memo: editMemo }
           : word
       )
     );
     setEditId(null); //編集終了
+    setIsEditing(false);
   };
+
+  //登録
+  const handleAdd = () => {
+    if (isEditing) {
+      alert("編集中は新規登録できません。");
+      return;
+    } //編集中は登録させない
+  
+    if (!newWord.trim() || !newMeaning.trim()) {
+      alert("英単語と意味は必須です。");
+      return;
+    }
+
+    //重複チェック
+    const duplicate = words.some(w => w.word.toLowerCase() === newWord.trim().toLowerCase());
+    if (duplicate) {
+      alert("この単語はすでに登録されています。");
+      return;
+    }
+  
+    const newItem = {
+      id: Date.now(),
+      word: newWord,
+      meaning: newMeaning,
+      memo: newMemo,
+      mistakeCount: 0,
+    };
+  
+    setWords(prev => [...prev, newItem]);
+    setNewWord("");
+    setNewMeaning("");
+    setNewMemo("");
+  };
+  
+  //Enterキーでも登録できるように
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleAdd();
+    }
+  };
+  
 
   //削除
   const handleDelete = (id) => {
@@ -138,7 +190,16 @@ function Wordbook() {
                 <td>
                   <button onClick={() => handleSpeak(item.word)}>🔊</button>
                 </td>
-                <td>{item.memo}</td>
+                <td>
+                  {editId === item.id ? (
+                    <input
+                      value={editMemo}
+                      onChange={(e) => setEditMemo(e.target.value)}
+                    />
+                  ) : (
+                    item.memo
+                  )}
+                </td>
                 <td>{item.mistakeCount}</td>
                 <td>
                   {editId === item.id ? (
@@ -159,6 +220,38 @@ function Wordbook() {
                 </td>
               </tr>
             ))}
+
+<tr>
+              <td>
+                <input
+                  value={newWord}
+                  onChange={(e) => setNewWord(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="英単語"
+                />
+              </td>
+              <td>
+                <input
+                  value={newMeaning}
+                  onChange={(e) => setNewMeaning(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="意味"
+                />
+              </td>
+              <td></td>
+              <td>
+                <input
+                  value={newMemo}
+                  onChange={(e) => setNewMemo(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="メモ"
+                />
+              </td>
+              <td>0</td>
+              <td>
+                <button onClick={handleAdd}>登録</button>
+              </td>
+            </tr>
           </tbody>
         </table>
       )}
