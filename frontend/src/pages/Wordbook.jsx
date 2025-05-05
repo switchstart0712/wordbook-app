@@ -26,13 +26,15 @@ function Wordbook() {
   const [editWord, setEditWord] = useState("");
   const [editMeaning, setEditMeaning] = useState("");
   const [editMemo, setEditMemo] = useState("");
-  //編集中かどうかの状態管理 
+  //編集中かどうかの状態管理
   const [isEditing, setIsEditing] = useState(false);
   //新しい単語登録用のStateを定義
   const [newWord, setNewWord] = useState("");
   const [newMeaning, setNewMeaning] = useState("");
   const [newMemo, setNewMemo] = useState("");
-  
+  //検索・フィルター機能State
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMistakesOnly, setFilterMistakesOnly] = useState(false);
 
   const handleEdit = (word) => {
     setIsEditing(true); //新規登録ボタンを無効に
@@ -60,19 +62,21 @@ function Wordbook() {
       alert("編集中は新規登録できません。");
       return;
     } //編集中は登録させない
-  
+
     if (!newWord.trim() || !newMeaning.trim()) {
       alert("英単語と意味は必須です。");
       return;
     }
 
     //重複チェック
-    const duplicate = words.some(w => w.word.toLowerCase() === newWord.trim().toLowerCase());
+    const duplicate = words.some(
+      (w) => w.word.toLowerCase() === newWord.trim().toLowerCase()
+    );
     if (duplicate) {
       alert("この単語はすでに登録されています。");
       return;
     }
-  
+
     const newItem = {
       id: Date.now(),
       word: newWord,
@@ -80,20 +84,19 @@ function Wordbook() {
       memo: newMemo,
       mistakeCount: 0,
     };
-  
-    setWords(prev => [...prev, newItem]);
+
+    setWords((prev) => [...prev, newItem]);
     setNewWord("");
     setNewMeaning("");
     setNewMemo("");
   };
-  
+
   //Enterキーでも登録できるように
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleAdd();
     }
   };
-  
 
   //削除
   const handleDelete = (id) => {
@@ -102,6 +105,16 @@ function Wordbook() {
 
     setWords((prevwords) => prevwords.filter((word) => word.id !== id));
   };
+
+  //フィルター
+  const filteredWords = words.filter((item) => {
+    const matchesSearch =
+      item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.meaning.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.memo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMistakeFilter = !filterMistakesOnly || item.mistakeCount > 1;
+    return matchesSearch && matchesMistakeFilter;
+  });
 
   // ✅ 音声読み込み（初回だけ）
   useEffect(() => {
@@ -146,6 +159,25 @@ function Wordbook() {
   return (
     <div style={{ padding: "2rem" }}>
       <h2>単語帳ページ</h2>
+      {/* 検索・抽出フォームをここに挿入 */}
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="検索..."
+          style={{ padding: "0.5rem", marginRight: "1rem" }}
+        />
+        <label>
+          <input
+            type="checkbox"
+            checked={filterMistakesOnly}
+            onChange={(e) => setFilterMistakesOnly(e.target.checked)}
+          />
+          1回以上間違えた単語のみ表示
+        </label>
+      </div>
+
       {words.length === 0 ? (
         <p>まだ単語が登録されていません。</p>
       ) : (
@@ -165,7 +197,7 @@ function Wordbook() {
             </tr>
           </thead>
           <tbody>
-            {words.map((item) => (
+            {filteredWords.map((item) => (
               <tr key={item.id}>
                 <td>
                   {editId === item.id ? (
@@ -221,7 +253,7 @@ function Wordbook() {
               </tr>
             ))}
 
-<tr>
+            <tr>
               <td>
                 <input
                   value={newWord}
