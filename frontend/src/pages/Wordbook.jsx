@@ -1,24 +1,8 @@
 // 一覧表示ページ
 import React, { useState, useEffect } from "react";
+import BackToHomeButton from "./components/BackToHomeButton";
 
-function Wordbook() {
-  const [words, setWords] = useState([
-    {
-      id: 1,
-      word: "apple",
-      meaning: "りんご",
-      memo: "果物の例",
-      mistakeCount: 2,
-    },
-    {
-      id: 2,
-      word: "book",
-      meaning: "本",
-      memo: "名詞",
-      mistakeCount: 0,
-    },
-  ]);
-
+function Wordbook({ words, setWords }) {
   const [voice, setVoice] = useState(null);
 
   //編集
@@ -158,7 +142,7 @@ function Wordbook() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h2>単語帳ページ</h2>
+      <h1>単語帳ページ</h1>
       {/* 検索・抽出フォームをここに挿入 */}
       <div style={{ marginBottom: "1rem" }}>
         <input
@@ -176,6 +160,7 @@ function Wordbook() {
           />
           1回以上間違えた単語のみ表示
         </label>
+        
       </div>
 
       {words.length === 0 ? (
@@ -287,6 +272,7 @@ function Wordbook() {
           </tbody>
         </table>
       )}
+      <BackToHomeButton />
     </div>
   );
 }

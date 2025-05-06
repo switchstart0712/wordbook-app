@@ -9,10 +9,10 @@ const BackToHomeButton = () => {
       onClick={() => navigate("/")}
       style={{
         position: "fixed",
-        bottom: "20px",
+        top: "20px",
         right: "20px",
         padding: "0.75rem 1.5rem",
-        backgroundColor: "#007bff",
+        backgroundColor: "#ff8c00",
         color: "white",
         border: "none",
         borderRadius: "8px",

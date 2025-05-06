@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Search from "./pages/Search";
 import Wordbook from "./pages/Wordbook";
@@ -8,13 +8,30 @@ import NotFound from "./pages/Notfound";
 import "./App.css";
 
 function App() {
+  const [words, setWords] = useState([
+      {
+        id: 1,
+        word: "apple",
+        meaning: "りんご",
+        memo: "果物の例",
+        mistakeCount: 2,
+      },
+      {
+        id: 2,
+        word: "book",
+        meaning: "本",
+        memo: "名詞",
+        mistakeCount: 0,
+      },
+    ]);
+  
   return (
     <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/wordbook" element={<Wordbook />} />
-          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/wordbook" element={<Wordbook words={words} setWords={setWords}/>} />
+          <Route path="/quiz" element={<Quiz words={words}/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
     </Router>

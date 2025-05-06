@@ -46,9 +46,9 @@ function Home() {
     <>
     <h1>Wordbook for me</h1>
       <nav>
-        <Link to="/search"><button>Web検索</button></Link>
-        <Link to="/wordbook"><button>単語帳</button></Link>
-        <Link to="/quiz"><button>クイズ</button></Link>
+        <Link to="/search"><button style={{backgroundColor: "#ff8c00"}}>Web検索</button></Link>
+        <Link to="/wordbook"><button style={{backgroundColor: "#ff8c00"}}>単語帳</button></Link>
+        <Link to="/quiz"><button style={{backgroundColor: "#ff8c00"}}>クイズ</button></Link>
       </nav>
     </>
   );  
