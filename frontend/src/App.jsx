@@ -15,6 +15,7 @@ function App() {
         meaning: "りんご",
         memo: "果物の例",
         mistakeCount: 2,
+        createdAt: "2025-05-01",
       },
       {
         id: 2,
@@ -22,6 +23,7 @@ function App() {
         meaning: "本",
         memo: "名詞",
         mistakeCount: 0,
+        createdAt: "2025-05-03",
       },
     ]);
   

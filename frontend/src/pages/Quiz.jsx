@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
 
 // クイズページ// src/pages/Quiz.jsx
@@ -8,6 +8,10 @@ function Quiz({ words }) {
   const [questionCount, setQuestionCount] = useState(5);
   const [quizWords, setQuizWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  //4択ロジックのState
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [choices, setChoices] = useState([]);
 
   const handleStart = () => {
     // フィルター処理
@@ -34,9 +38,32 @@ function Quiz({ words }) {
     setQuizWords(selected);
     setIsQuizStarted(true);
     setCurrentIndex(0);
+    setSelectedChoice(null);
+    setShowAnswer(false);
   };
 
   const currentWord = quizWords[currentIndex];
+
+  useEffect(() => {
+    if (isQuizStarted && currentWord) {
+      const incorrect = words
+        .filter((w) => w.word !== currentWord.word)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+      const options = [...incorrect, currentWord].sort(
+        () => 0.5 - Math.random()
+      );
+      setChoices(options);
+      setSelectedChoice(null);
+      setShowAnswer(false);
+    }
+  }, [currentWord, isQuizStarted]);
+
+  const handleChoice = (choice) => {
+    if (showAnswer) return;
+    setSelectedChoice(choice);
+    setShowAnswer(true);
+  };
 
   const handleNext = () => {
     if (currentIndex + 1 < quizWords.length) {
@@ -47,6 +74,34 @@ function Quiz({ words }) {
     }
   };
 
+  const getButtonStyle = (choice) => {
+    const isCorrect = choice.word === currentWord.word;
+    const isSelected = choice === selectedChoice;
+
+    let backgroundColor = "#f0f0f0";
+    let color = "#333";
+
+    if (showAnswer) {
+      if (isCorrect) {
+        backgroundColor = "#fa8072"; // 薄赤（正解）
+        color = isSelected ? "black" : "#333";
+      } else if (isSelected) {
+        backgroundColor = "#87cefa"; // 薄青（不正解）
+        color = "black";
+      }
+    }
+
+    return {
+      backgroundColor,
+      color,
+      padding: "1rem",
+      fontSize: "1.2rem",
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      cursor: showAnswer ? "default" : "pointer",
+    };
+  };
+
   return (
     <div style={{ padding: "2rem" }}>
       <h1>クイズに挑戦！</h1>
@@ -54,7 +109,7 @@ function Quiz({ words }) {
       {!isQuizStarted ? (
         <>
           <div>
-            <h4>出題範囲</h4>
+            <h3>出題範囲</h3>
             {["all", "week", "month", "mistake"].map((val) => (
               <label key={val} style={{ marginRight: "1rem" }}>
                 <input
@@ -76,7 +131,7 @@ function Quiz({ words }) {
           </div>
 
           <div style={{ marginTop: "1rem" }}>
-            <h4>出題数</h4>
+            <h3>出題数</h3>
             {[5, 10, 20].map((num) => (
               <label key={num} style={{ marginRight: "1rem" }}>
                 <input
@@ -99,9 +154,29 @@ function Quiz({ words }) {
           <p>
             第 {currentIndex + 1} 問 / {quizWords.length}
           </p>
-          <h3>{currentWord.word}</h3>
-          <p>意味：{currentWord.meaning}</p>
-          <button onClick={handleNext}>次へ</button>
+          <h3>意味：{currentWord.meaning}</h3>
+
+          <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+            {choices.map((choice) => (
+              <button
+                key={choice.word}
+                onClick={() => handleChoice(choice)}
+                disabled={showAnswer}
+                style={getButtonStyle(choice)}
+              >
+                {choice.word}
+              </button>
+            ))}
+          </div>
+
+          {showAnswer && (
+            <button
+              style={{ marginTop: "1.5rem", padding: "0.5rem 1.5rem" }}
+              onClick={handleNext}
+            >
+              次へ
+            </button>
+          )}
         </div>
       )}
       <BackToHomeButton />
