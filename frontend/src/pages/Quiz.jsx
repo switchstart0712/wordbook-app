@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
+import PronounceButton from "./components/PronounceButton";
 
 // クイズページ// src/pages/Quiz.jsx
 function Quiz({ words }) {
@@ -154,7 +155,23 @@ function Quiz({ words }) {
           <p>
             第 {currentIndex + 1} 問 / {quizWords.length}
           </p>
-          <h3>意味：{currentWord.meaning}</h3>
+          <div
+            style={{
+              border: "2px solid white",
+              borderRadius: "8px",
+              padding: "1rem",
+              textAlign: "center",
+              marginBottom: "2rem",
+              backgroundColor: "#222", // 任意で暗背景
+              color: "white",
+              display: "inline-block",
+            }}
+          >
+            <h2 style={{ fontSize: "2rem", margin: 0 }}>
+              {currentWord.word}
+              <PronounceButton text={currentWord.word} />
+            </h2>
+          </div>
 
           <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
             {choices.map((choice) => (
@@ -164,7 +181,7 @@ function Quiz({ words }) {
                 disabled={showAnswer}
                 style={getButtonStyle(choice)}
               >
-                {choice.word}
+                {choice.meaning}
               </button>
             ))}
           </div>

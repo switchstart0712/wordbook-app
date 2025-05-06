@@ -1,10 +1,9 @@
 // 一覧表示ページ
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
+import PronounceButton from "./components/PronounceButton";
 
 function Wordbook({ words, setWords }) {
-  const [voice, setVoice] = useState(null);
-
   //編集
   const [editId, setEditId] = useState(null);
   const [editWord, setEditWord] = useState("");
@@ -100,46 +99,6 @@ function Wordbook({ words, setWords }) {
     return matchesSearch && matchesMistakeFilter;
   });
 
-  // ✅ 音声読み込み（初回だけ）
-  useEffect(() => {
-    const loadVoices = () => {
-      const voices = speechSynthesis.getVoices();
-      const enVoice = voices.find(
-        (v) => v.lang === "en-US" && v.name.includes("Google")
-      );
-      if (enVoice) {
-        setVoice(enVoice);
-      } else {
-        console.warn("音声がまだ読み込まれていません");
-      }
-    };
-
-    loadVoices(); // 初回実行
-
-    // イベントで再取得（Chromeなどで遅延するため）
-    speechSynthesis.onvoiceschanged = loadVoices;
-  }, []);
-
-  const handleSpeak = (text) => {
-    if (!voice) {
-      console.error("音声が見つかりません");
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.voice = voice;
-    utter.lang = "en-US";
-    utter.volume = 1;
-    utter.pitch = 1;
-    utter.rate = 1;
-
-    utter.onstart = () => console.log(`発音開始：${text}`);
-    utter.onerror = (e) => console.error("発音エラー:", e);
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
-  };
-
   return (
     <div style={{ padding: "2rem" }}>
       <h1>単語帳ページ</h1>
@@ -160,7 +119,6 @@ function Wordbook({ words, setWords }) {
           />
           1回以上間違えた単語のみ表示
         </label>
-        
       </div>
 
       {words.length === 0 ? (
@@ -205,7 +163,7 @@ function Wordbook({ words, setWords }) {
                   )}
                 </td>
                 <td>
-                  <button onClick={() => handleSpeak(item.word)}>🔊</button>
+                  <PronounceButton text={item.word} />
                 </td>
                 <td>
                   {editId === item.id ? (

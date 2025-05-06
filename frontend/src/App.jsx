@@ -25,6 +25,22 @@ function App() {
         mistakeCount: 0,
         createdAt: "2025-05-03",
       },
+      {
+        id: 3,
+        word: "confirm",
+        meaning: "確認する",
+        memo: "東大2023年出題",
+        mistakeCount: 5,
+        createdAt: "2025-05-07",
+      },
+      {
+        id: 4,
+        word: "Procrastination",
+        meaning: "先延ばし",
+        memo: "九大模試/河合",
+        mistakeCount: 3,
+        createdAt: "2025-05-08",
+      },
     ]);
   
   return (
