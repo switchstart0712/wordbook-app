@@ -68,7 +68,7 @@ function Wordbook({ words, setWords }) {
       mistakeCount: 0,
     };
 
-    setWords((prev) => [...prev, newItem]);
+    setWords((prev) => [newItem, ...prev]);// 新しいものを先頭に追加
     setNewWord("");
     setNewMeaning("");
     setNewMemo("");
@@ -140,6 +140,38 @@ function Wordbook({ words, setWords }) {
             </tr>
           </thead>
           <tbody>
+          <tr>
+              <td>
+                <input
+                  value={newWord}
+                  onChange={(e) => setNewWord(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="英単語"
+                />
+              </td>
+              <td>
+                <input
+                  value={newMeaning}
+                  onChange={(e) => setNewMeaning(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="意味"
+                />
+              </td>
+              <td></td>
+              <td>
+                <input
+                  value={newMemo}
+                  onChange={(e) => setNewMemo(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="メモ"
+                />
+              </td>
+              <td>0</td>
+              <td>
+                <button onClick={handleAdd}>登録</button>
+              </td>
+            </tr>
+
             {filteredWords.map((item) => (
               <tr key={item.id}>
                 <td>
@@ -196,37 +228,7 @@ function Wordbook({ words, setWords }) {
               </tr>
             ))}
 
-            <tr>
-              <td>
-                <input
-                  value={newWord}
-                  onChange={(e) => setNewWord(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="英単語"
-                />
-              </td>
-              <td>
-                <input
-                  value={newMeaning}
-                  onChange={(e) => setNewMeaning(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="意味"
-                />
-              </td>
-              <td></td>
-              <td>
-                <input
-                  value={newMemo}
-                  onChange={(e) => setNewMemo(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="メモ"
-                />
-              </td>
-              <td>0</td>
-              <td>
-                <button onClick={handleAdd}>登録</button>
-              </td>
-            </tr>
+            
           </tbody>
         </table>
       )}
