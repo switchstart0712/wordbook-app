@@ -104,8 +104,18 @@ function Quiz({ words }) {
   };
 
   return (
-    <div style={{ padding: "1rem", maxWidth: "100%", overflowX: "hidden" }}>
-      {!isQuizStarted && <h2 style={{ textAlign: "center" }}>クイズに挑戦！</h2>}
+    <div
+      style={{
+        padding: "0.5rem",
+        maxWidth: "100%",
+        overflowX: "hidden",
+        minHeight: "100vh", // 画面全体
+        boxSizing: "border-box",
+      }}
+    >
+      {!isQuizStarted && (
+        <h2 style={{ textAlign: "center" }}>クイズに挑戦！</h2>
+      )}
 
       {!isQuizStarted ? (
         <>
@@ -159,7 +169,6 @@ function Quiz({ words }) {
             style={{
               border: "2px solid white",
               borderRadius: "8px",
-              padding: "1rem",
               textAlign: "center",
               marginBottom: "2rem",
               backgroundColor: "#222", // 暗背景
@@ -173,7 +182,16 @@ function Quiz({ words }) {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "1fr", marginTop: "1rem" }}> {/*gridTemplateColumns: "1fr",で*/}
+          <div
+            style={{
+              display: "grid",
+              gap: "0.75rem",
+              gridTemplateColumns: "1fr",
+              marginTop: "1rem",
+            }}
+          >
+            {" "}
+            {/*gridTemplateColumns: "1fr",で*/}
             {choices.map((choice) => (
               <button
                 key={choice.word}
