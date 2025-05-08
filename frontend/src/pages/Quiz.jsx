@@ -104,8 +104,8 @@ function Quiz({ words }) {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>クイズに挑戦！</h2>
+    <div style={{ padding: "1rem", maxWidth: "100%", overflowX: "hidden" }}>
+      {!isQuizStarted && <h2 style={{ textAlign: "center" }}>クイズに挑戦！</h2>}
 
       {!isQuizStarted ? (
         <>
@@ -162,7 +162,7 @@ function Quiz({ words }) {
               padding: "1rem",
               textAlign: "center",
               marginBottom: "2rem",
-              backgroundColor: "#222", // 任意で暗背景
+              backgroundColor: "#222", // 暗背景
               color: "white",
               display: "inline-block",
             }}
@@ -173,7 +173,7 @@ function Quiz({ words }) {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+          <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "1fr", marginTop: "1rem" }}> {/*gridTemplateColumns: "1fr",で*/}
             {choices.map((choice) => (
               <button
                 key={choice.word}
