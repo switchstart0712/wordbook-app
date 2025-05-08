@@ -105,7 +105,7 @@ function Quiz({ words }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>クイズに挑戦！</h1>
+      <h2>クイズに挑戦！</h2>
 
       {!isQuizStarted ? (
         <>
