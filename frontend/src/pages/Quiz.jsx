@@ -106,7 +106,7 @@ function Quiz({ words }) {
   return (
     <div
       style={{
-        padding: "0.5rem",
+        padding: isQuizStarted ? "0.5rem" : "2rem 1rem 1rem", // ← ここで上余白調整
         maxWidth: "100%",
         overflowX: "hidden",
         minHeight: "100vh", // 画面全体
@@ -169,8 +169,9 @@ function Quiz({ words }) {
             style={{
               border: "2px solid white",
               borderRadius: "8px",
+              padding: "0.75rem 1rem", // ← 枠内左右余白UP
               textAlign: "center",
-              marginBottom: "2rem",
+              margin: "0.5rem 1rem",   // ← 枠の外側左右余白UP
               backgroundColor: "#222", // 暗背景
               color: "white",
               display: "inline-block",
