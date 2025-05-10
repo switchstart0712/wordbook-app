@@ -106,7 +106,7 @@ function Wordbook({ words, setWords }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>単語帳ページ</h1>
+      <h3>単語帳ページ</h3>
       {/* 検索・抽出フォームをここに挿入 */}
       <div style={{ marginBottom: "1rem" }}>
         <input
@@ -144,21 +144,33 @@ function Wordbook({ words, setWords }) {
                 value={newWord}
                 onChange={(e) => setNewWord(e.target.value)}
                 onKeyDown={handleKeyPress}
-                style={{ width: "100%", marginBottom: "0.5rem" }}
+                style={{ display: "block",
+                margin: "0 auto 0.5rem",
+                width: "100%",
+                maxWidth: "300px",
+                padding: "0.5rem", }}
               />
               <input
                 placeholder="意味"
                 value={newMeaning}
                 onChange={(e) => setNewMeaning(e.target.value)}
                 onKeyDown={handleKeyPress}
-                style={{ width: "100%", marginBottom: "0.5rem" }}
+                style={{ display: "block",
+                margin: "0 auto 0.5rem",
+                width: "100%",
+                maxWidth: "300px",
+                padding: "0.5rem", }}
               />
               <input
                 placeholder="メモ"
                 value={newMemo}
                 onChange={(e) => setNewMemo(e.target.value)}
                 onKeyDown={handleKeyPress}
-                style={{ width: "100%", marginBottom: "0.5rem" }}
+                style={{ display: "block",
+                margin: "0 auto 0.5rem",
+                width: "100%",
+                maxWidth: "300px",
+                padding: "0.5rem", }}
               />
               <button onClick={handleAdd}>登録</button>
             </div>
@@ -173,7 +185,31 @@ function Wordbook({ words, setWords }) {
                   padding: "1rem",
                   marginBottom: "1rem",
                 }}
-              >
+              > 
+                {editId === item.id ? (
+                <>
+                  <input
+                    value={editWord}
+                    onChange={(e) => setEditWord(e.target.value)}
+                    style={{ width: "100%", marginBottom: "0.5rem" }}
+                  />
+                  <input
+                    value={editMeaning}
+                    onChange={(e) => setEditMeaning(e.target.value)}
+                    style={{ width: "100%", marginBottom: "0.5rem" }}
+                  />
+                  <input
+                    value={editMemo}
+                    onChange={(e) => setEditMemo(e.target.value)}
+                    style={{ width: "100%", marginBottom: "0.5rem" }}
+                  />
+                  <button onClick={handleSave} style={{ marginRight: "0.5rem" }}>
+                    保存
+                  </button>
+                  <button onClick={() => setEditId(null)}>キャンセル</button>
+                </>
+              ) : (
+                <>
                 <h2 style={{ marginBottom: "0.5rem" }}>
                   {item.word} <PronounceButton text={item.word} />
                 </h2>
@@ -184,11 +220,13 @@ function Wordbook({ words, setWords }) {
                   <button onClick={() => handleEdit(item)} style={{ marginRight: "0.5rem" }}>編集</button>
                   <button onClick={() => handleDelete(item.id)}>削除</button>
                 </div>
-              </div>
-            ))}
+              </>
+            )}
+          </div>
+          ))}
           </>
         ) : (
-          //PC表示型UI
+          //PC：テーブル表示
           <table
             border="1"
             cellPadding="8"
