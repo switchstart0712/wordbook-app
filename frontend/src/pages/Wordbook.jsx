@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
+import useWindowWidth from "../hooks/useWindowWidth";
 
 function Wordbook({ words, setWords }) {
   //編集
@@ -18,6 +19,10 @@ function Wordbook({ words, setWords }) {
   //検索・フィルター機能State
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMistakesOnly, setFilterMistakesOnly] = useState(false);
+
+  //スマホ用画面
+  const width = useWindowWidth();
+  const isMobile = width < 768;
 
   const handleEdit = (word) => {
     setIsEditing(true); //新規登録ボタンを無効に
@@ -124,113 +129,172 @@ function Wordbook({ words, setWords }) {
       {words.length === 0 ? (
         <p>まだ単語が登録されていません。</p>
       ) : (
-        <table
-          border="1"
-          cellPadding="8"
-          style={{ borderCollapse: "collapse", width: "100%" }}
-        >
-          <thead>
-            <tr>
-              <th>英単語</th>
-              <th>意味</th>
-              <th>発音</th>
-              <th>メモ</th>
-              <th>間違えた回数</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-              <td>
-                <input
-                  value={newWord}
-                  onChange={(e) => setNewWord(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="英単語"
-                />
-              </td>
-              <td>
-                <input
-                  value={newMeaning}
-                  onChange={(e) => setNewMeaning(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="意味"
-                />
-              </td>
-              <td></td>
-              <td>
-                <input
-                  value={newMemo}
-                  onChange={(e) => setNewMemo(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="メモ"
-                />
-              </td>
-              <td>0</td>
-              <td>
-                <button onClick={handleAdd}>登録</button>
-              </td>
-            </tr>
+        isMobile ? (
+          // カード型のモバイルUIを挿入
+          <>
+            {/* 新規登録欄（カード上部） */}
+            <div style={{
+              marginBottom: "1rem",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "1rem",
+            }}>
+              <input
+                placeholder="英単語"
+                value={newWord}
+                onChange={(e) => setNewWord(e.target.value)}
+                onKeyDown={handleKeyPress}
+                style={{ width: "100%", marginBottom: "0.5rem" }}
+              />
+              <input
+                placeholder="意味"
+                value={newMeaning}
+                onChange={(e) => setNewMeaning(e.target.value)}
+                onKeyDown={handleKeyPress}
+                style={{ width: "100%", marginBottom: "0.5rem" }}
+              />
+              <input
+                placeholder="メモ"
+                value={newMemo}
+                onChange={(e) => setNewMemo(e.target.value)}
+                onKeyDown={handleKeyPress}
+                style={{ width: "100%", marginBottom: "0.5rem" }}
+              />
+              <button onClick={handleAdd}>登録</button>
+            </div>
 
+            {/* 単語表示：カード形式 */}
             {filteredWords.map((item) => (
-              <tr key={item.id}>
+              <div
+                key={item.id}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <h2 style={{ marginBottom: "0.5rem" }}>
+                  {item.word} <PronounceButton text={item.word} />
+                </h2>
+                <p>意味：{item.meaning}</p>
+                <p>メモ：{item.memo}</p>
+                <p>間違えた回数：{item.mistakeCount}</p>
+                <div style={{ marginTop: "0.5rem" }}>
+                  <button onClick={() => handleEdit(item)} style={{ marginRight: "0.5rem" }}>編集</button>
+                  <button onClick={() => handleDelete(item.id)}>削除</button>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : (
+          //PC表示型UI
+          <table
+            border="1"
+            cellPadding="8"
+            style={{ borderCollapse: "collapse", width: "100%" }}
+          >
+            <thead>
+              <tr>
+                <th>英単語</th>
+                <th>意味</th>
+                <th>発音</th>
+                <th>メモ</th>
+                <th>間違えた回数</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
                 <td>
-                  {editId === item.id ? (
-                    <input
-                      value={editWord}
-                      onChange={(e) => setEditWord(e.target.value)}
-                    />
-                  ) : (
-                    item.word
-                  )}
+                  <input
+                    value={newWord}
+                    onChange={(e) => setNewWord(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="英単語"
+                  />
                 </td>
                 <td>
-                  {editId === item.id ? (
-                    <input
-                      value={editMeaning}
-                      onChange={(e) => setEditMeaning(e.target.value)}
-                    />
-                  ) : (
-                    item.meaning
-                  )}
+                  <input
+                    value={newMeaning}
+                    onChange={(e) => setNewMeaning(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="意味"
+                  />
                 </td>
+                <td></td>
                 <td>
-                  <PronounceButton text={item.word} />
+                  <input
+                    value={newMemo}
+                    onChange={(e) => setNewMemo(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="メモ"
+                  />
                 </td>
+                <td>0</td>
                 <td>
-                  {editId === item.id ? (
-                    <input
-                      value={editMemo}
-                      onChange={(e) => setEditMemo(e.target.value)}
-                    />
-                  ) : (
-                    item.memo
-                  )}
-                </td>
-                <td>{item.mistakeCount}</td>
-                <td>
-                  {editId === item.id ? (
-                    <>
-                      <button onClick={handleSave}>保存</button>
-                      <button onClick={() => setEditId(null)}>
-                        キャンセル
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => handleEdit(item)}>編集</button>
-                      <button onClick={() => handleDelete(item.id)}>
-                        削除
-                      </button>
-                    </>
-                  )}
+                  <button onClick={handleAdd}>登録</button>
                 </td>
               </tr>
-            ))}
 
-            
-          </tbody>
-        </table>
+              {filteredWords.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    {editId === item.id ? (
+                      <input
+                        value={editWord}
+                        onChange={(e) => setEditWord(e.target.value)}
+                      />
+                    ) : (
+                      item.word
+                    )}
+                  </td>
+                  <td>
+                    {editId === item.id ? (
+                      <input
+                        value={editMeaning}
+                        onChange={(e) => setEditMeaning(e.target.value)}
+                      />
+                    ) : (
+                      item.meaning
+                    )}
+                  </td>
+                  <td>
+                    <PronounceButton text={item.word} />
+                  </td>
+                  <td>
+                    {editId === item.id ? (
+                      <input
+                        value={editMemo}
+                        onChange={(e) => setEditMemo(e.target.value)}
+                      />
+                    ) : (
+                      item.memo
+                    )}
+                  </td>
+                  <td>{item.mistakeCount}</td>
+                  <td>
+                    {editId === item.id ? (
+                      <>
+                        <button onClick={handleSave}>保存</button>
+                        <button onClick={() => setEditId(null)}>
+                          キャンセル
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => handleEdit(item)}>編集</button>
+                        <button onClick={() => handleDelete(item.id)}>
+                          削除
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
       )}
       <BackToHomeButton />
     </div>
