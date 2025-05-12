@@ -4,7 +4,7 @@ const PronounceButton = ({ text }) => {
   const [audioUrl, setAudioUrl] = useState(null);
   const [voice, setVoice] = useState(null);
 
-  // ✅ APIからmp3取得
+  // Free Dictionary APIからmp3取得
   useEffect(() => {
     const fetchAudioUrl = async () => {
       try {

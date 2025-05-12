@@ -1,5 +1,5 @@
 // 一覧表示ページ
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
 import useWindowWidth from "../hooks/useWindowWidth";
@@ -24,6 +24,20 @@ function Wordbook({ words, setWords }) {
   const width = useWindowWidth();
   const isMobile = width < 768;
 
+  //初期データの取得をAPI経由
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/words");
+        const data = await response.json();
+        setWords(data);
+      } catch (error) {
+        console.error("単語の取得に失敗しました", error);
+      }
+    };
+    fetchWords();
+  }, []);
+
   const handleEdit = (word) => {
     setIsEditing(true); //新規登録ボタンを無効に
     setEditId(word.id); //IDベースで編集対象を特定
@@ -32,20 +46,53 @@ function Wordbook({ words, setWords }) {
     setEditMemo(word.memo);
   };
 
-  const handleSave = () => {
-    setWords((prevwords) =>
-      prevwords.map((word) =>
-        word.id === editId //IDで対象を照合
-          ? { ...word, word: editWord, meaning: editMeaning, memo: editMemo }
-          : word
-      )
-    );
-    setEditId(null); //編集終了
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!editWord.trim() || !editMeaning.trim()) {
+      alert("英単語と意味は必須です。");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/words/${editId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          word: editWord,
+          meaning: editMeaning,
+          memo: editMemo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("編集に失敗しました");
+      }
+
+      const updatedWord = await response.json();
+
+      //APIレスポンスのデータでローカルstateを更新
+      setWords((prevwords) =>
+        prevwords.map((word) =>
+          //IDで対象を照合
+          word.id === editId ? updatedWord : word
+        )
+      );
+
+      setEditId(null); //編集終了
+      setIsEditing(false);
+      //入力欄のリセット
+      setEditWord("");
+      setEditMeaning("");
+      setEditMemo("");
+    } catch (error) {
+      alert("編集時にエラーが発生しました");
+      console.error(error);
+    }
   };
 
   //登録
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (isEditing) {
       alert("編集中は新規登録できません。");
       return;
@@ -65,18 +112,35 @@ function Wordbook({ words, setWords }) {
       return;
     }
 
-    const newItem = {
-      id: Date.now(),
-      word: newWord,
-      meaning: newMeaning,
-      memo: newMemo,
-      mistakeCount: 0,
-    };
+    try {
+      const response = await fetch("http://localhost:8000/words", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          word: newWord,
+          meaning: newMeaning,
+          memo: newMemo,
+        }),
+      })
 
-    setWords((prev) => [newItem, ...prev]);// 新しいものを先頭に追加
-    setNewWord("");
-    setNewMeaning("");
-    setNewMemo("");
+      const newItem = {
+        id: Date.now(),
+        word: newWord,
+        meaning: newMeaning,
+        memo: newMemo,
+        mistakeCount: 0,
+      };
+
+      setWords((prev) => [newItem, ...prev]);// 新しいものを先頭に追加
+      setNewWord("");
+      setNewMeaning("");
+      setNewMemo("");
+    } catch (error) {
+      alert("登録時にエラーが発生しました");
+      console.error(error);
+    }
   };
 
   //Enterキーでも登録できるように
@@ -87,11 +151,23 @@ function Wordbook({ words, setWords }) {
   };
 
   //削除
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmed = window.confirm("この単語を削除しますか？");
     if (!confirmed) return;
 
-    setWords((prevwords) => prevwords.filter((word) => word.id !== id));
+    try {
+      const response = await fetch(`http://localhost:8000/words/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("削除に失敗しました");
+      }
+
+      setWords((prevWords) => prevWords.filter((word) => word.id !== id));
+    } catch (error) {
+      alert("削除時にエラーが発生しました");
+      console.error(error);
+    }
   };
 
   //フィルター

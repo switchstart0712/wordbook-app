@@ -1,11 +1,17 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException, Depends
 # CORSエラーを防ぐため
 from fastapi.middleware.cors import CORSMiddleware
-
 from typing import List
+from sqlmodel import Session, select
 from app.models import Word, WordCreate
+from app.database import create_db_and_tables, get_session
 
 app = FastAPI()
+
+# アプリ起動時にDB作成
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 #CORS設定 React側のURLを許可
 app.add_middleware(
@@ -21,21 +27,37 @@ app.add_middleware(
 def read_root():
     return {"message": "FastAPI is working!"}
 
-# 仮のデータベース(インメモリ)
-words_db: List[Word] = []
-next_id = 1
-
-
 @app.get("/words", response_model=List[Word])
-def get_words():
-    return words_db
+def get_words(session: Session = Depends(get_session)):
+    return session.exec(select(Word)).all()
 
 @app.post("/words", response_model=Word)
-def create_word(word: WordCreate):
-    global next_id
-    # >>> id: word11 id: word2 グローバルなIDカウンタでユニークID管理
-    # print(dict)であれば{key1: value1, key2: value2}となり、**word.dict()では展開が行われている
-    new_word = Word(id=next_id, **word.dict())
-    words_db.append(new_word)
-    next_id += 1
-    return new_word
+def create_word(word: WordCreate, session: Session = Depends(get_session)):
+    db_word = Word(**word.dict())
+    session.add(db_word)
+    session.commit()
+    session.refresh(db_word)
+    return db_word
+
+# 単語の編集
+@app.put("/words/{word_id}", response_model=Word)
+def update_word(word_id: int, updated_word: WordCreate, session: Session = Depends(get_session)):
+    word = session.get(Word, word_id)
+    if not word:
+        raise HTTPException(status_code=404, detail="Word not found")
+    for field, value in updated_word.dict().items():
+        setattr(word, field, value)
+    session.add(word)
+    session.commit()
+    session.refresh(word)
+    return word
+
+# 単語の削除
+@app.delete("/words/{word_id}")
+def delete_word(word_id: int, session: Session = Depends(get_session)):
+    word = session.get(Word, word_id)
+    if not word:
+        raise HTTPException(status_code=404, detail="Word not found")
+    session.delete(word)
+    session.commit()
+    return {"message": "Word deleted"}
