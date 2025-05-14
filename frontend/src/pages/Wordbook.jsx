@@ -4,7 +4,8 @@ import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
 import useWindowWidth from "../hooks/useWindowWidth";
 
-function Wordbook({ words, setWords }) {
+function Wordbook() {
+  const [words, setWords] = useState([]);
   //編集
   const [editId, setEditId] = useState(null);
   const [editWord, setEditWord] = useState("");
@@ -32,7 +33,7 @@ function Wordbook({ words, setWords }) {
       try {
         const response = await fetch("http://localhost:8000/words");
         const data = await response.json();
-        setWords(data);
+        setWords(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("単語の取得に失敗しました", error);
       } finally {

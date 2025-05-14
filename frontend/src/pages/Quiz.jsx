@@ -3,7 +3,9 @@ import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
 
 // クイズページ// src/pages/Quiz.jsx
-function Quiz({ words }) {
+function Quiz() {
+  const [words, setWords] = useState([]);
+
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [selectedRange, setSelectedRange] = useState("all");
   const [questionCount, setQuestionCount] = useState(5);
@@ -15,7 +17,25 @@ function Quiz({ words }) {
   const [choices, setChoices] = useState([]);
   //不正解履歴用のState
   const [answeredWords, setAnsweredWords] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+
+  
+  //初期データの取得をAPI経由
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/words");
+        const data = await response.json();
+        setWords(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("単語の取得に失敗しました", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchWords();
+  }, []);
 
   const handleStart = () => {
     // フィルター処理
