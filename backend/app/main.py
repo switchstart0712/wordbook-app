@@ -5,6 +5,7 @@ from typing import List
 from sqlmodel import Session, select
 from app.models import Word, WordCreate
 from app.database import create_db_and_tables, get_session
+from fastapi import Path
 
 app = FastAPI()
 
@@ -61,3 +62,19 @@ def delete_word(word_id: int, session: Session = Depends(get_session)):
     session.delete(word)
     session.commit()
     return {"message": "Word deleted"}
+
+#間違えた回数のカウント
+@app.patch("/words/{word_id}/mistake", response_model=Word)
+def increment_mistake_count(
+    word_id: int = Path(..., description="単語のID"),
+    session: Session = Depends(get_session),
+):
+    word = session.get(Word, word_id)
+    if not word:
+        raise HTTPException(status_code=404, detail="Word not found")
+
+    word.mistakeCount += 1
+    session.add(word)
+    session.commit()
+    session.refresh(word)
+    return word

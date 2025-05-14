@@ -13,6 +13,9 @@ function Quiz({ words }) {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [choices, setChoices] = useState([]);
+  //不正解履歴用のState
+  const [answeredWords, setAnsweredWords] = useState([]);
+
 
   const handleStart = () => {
     // フィルター処理
@@ -47,6 +50,7 @@ function Quiz({ words }) {
 
   useEffect(() => {
     if (isQuizStarted && currentWord) {
+      //選択肢を生成
       const incorrect = words
         .filter((w) => w.word !== currentWord.word)
         .sort(() => 0.5 - Math.random())
@@ -64,16 +68,42 @@ function Quiz({ words }) {
     if (showAnswer) return;
     setSelectedChoice(choice);
     setShowAnswer(true);
+    // ユーザーの回答を記録
+    setAnsweredWords((prev) => [
+      ...prev,
+      {
+        word: currentWord,              // 出題された単語
+        userAnswer: choice.word,        // ユーザーが選んだ単語
+        correctAnswer: currentWord.word // 正解
+      }
+    ]);
   };
 
   const handleNext = () => {
     if (currentIndex + 1 < quizWords.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
+      handleFinishQuiz(); // クイズ終了時にmistakeCount反映
       alert("クイズ終了！");
       setIsQuizStarted(false);
     }
   };
+
+  const handleFinishQuiz = async () => {
+  const incorrectWordIds = answeredWords
+    .filter((item) => item.userAnswer !== item.correctAnswer)
+    .map((item) => item.word.id);
+
+  try {
+    for (const id of incorrectWordIds) {
+      await fetch(`http://localhost:8000/words/${id}/mistake`, {
+        method: "PATCH",
+      });
+    }
+  } catch (err) {
+    console.error("mistakeCount 更新に失敗しました", err);
+  }
+};
 
   const getButtonStyle = (choice) => {
     const isCorrect = choice.word === currentWord.word;
