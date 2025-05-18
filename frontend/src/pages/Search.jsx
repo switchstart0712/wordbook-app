@@ -5,18 +5,60 @@ import BackToHomeButton from "./components/BackToHomeButton";
 function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // 仮の検索処理（本来はAPI呼び出し）
-  const handleSearch = () => {
+  // 辞書APIから意味を取得
+  const handleSearch = async () => {
     if (!searchTerm.trim()) return;
+    setLoading(true);
+    setError("");
+    setResult(null);
 
-    // ダミーデータ：本番はAPI連携
-    const dummyResult = {
-      word: searchTerm.trim(),
-      meaning: "○○",
-    };
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchTerm.trim()}`);
+      const data = await response.json();
 
-    setResult(dummyResult);
+      if (!data || data.title === "No Definitions Found") {
+        setError("意味が見つかりませんでした。");
+      } else {
+        const definition = data[0].meanings[0]?.definitions[0]?.definition || "意味なし";
+        setResult({
+          word: searchTerm.trim(),
+          meaning: definition,
+        });
+      }
+    } catch (err) {
+      console.error("検索エラー:", err);
+      setError("エラーが発生しました。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // SQLiteバックエンドに単語を登録
+  const handleRegister = async () => {
+    if (!result) return;
+
+    try {
+      const res = await fetch("http://localhost:8000/words", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          word: result.word,
+          meaning: result.meaning,
+          memo: "",
+          mistakeCount: 0
+        }),
+      });
+
+      if (!res.ok) throw new Error("登録に失敗しました");
+
+      alert("登録しました！");
+    } catch (err) {
+      console.error("登録エラー:", err);
+      alert("登録に失敗しました");
+    }
   };
 
   return (
@@ -59,14 +101,18 @@ function Search() {
           minHeight: "80px",
         }}
       >
-        {result ? (
+        {loading ? (
+          <p style={{ color: "white" }}>読み込み中...</p>
+        ) : error ? (
+          <p style={{ color: "white" }}>{error}</p>
+        ) : result ? (
           <>
             <h3>
               {result.word}
               <PronounceButton text={result.word} />
             </h3>
             <p>意味：{result.meaning}</p>
-            <button>登録</button>
+            <button onClick={handleRegister}>登録</button>
           </>
         ) : (
           <p style={{ color: "white" }}>ここに検索結果が表示されます</p>
