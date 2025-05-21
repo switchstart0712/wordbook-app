@@ -17,7 +17,10 @@ def on_startup():
 #CORS設定 React側のURLを許可
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # ← ReactのURL
+    allow_origins=[
+        "http://localhost:5173",  # ローカル開発用
+        "https://wordbook-app-pi.vercel.app",  # ← Vercel本番ドメイン
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
