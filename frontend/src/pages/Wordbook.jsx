@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
 import useWindowWidth from "../hooks/useWindowWidth";
+import { getWords, addWord, updateWord, deleteWord }from "../api/wordbook";
 
 function Wordbook() {
   const [words, setWords] = useState([]);
@@ -31,8 +32,7 @@ function Wordbook() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch("http://localhost:8000/words");
-        const data = await response.json();
+        const data = await getWords();
         setWords(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("単語の取得に失敗しました", error);
@@ -58,24 +58,7 @@ function Wordbook() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/words/${editId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          word: editWord,
-          meaning: editMeaning,
-          memo: editMemo,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("編集に失敗しました");
-      }
-
-      const updatedWord = await response.json();
-
+      const updatedWord = await updateWord(editId, editWord, editMeaning, editMemo);
       //APIレスポンスのデータでローカルstateを更新
       setWords((prevwords) =>
         prevwords.map((word) =>
@@ -118,24 +101,7 @@ function Wordbook() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/words", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          word: newWord,
-          meaning: newMeaning,
-          memo: newMemo,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("登録に失敗しました");
-      }
-
-      const newItem = await response.json(); // ← FastAPIから返されたWordオブジェクト
-
+      const newItem = await addWord(newWord, newMeaning, newMemo);
       setWords((prev) => [newItem, ...prev]);// 新しいものを先頭に追加
       setNewWord("");
       setNewMeaning("");
@@ -159,13 +125,7 @@ function Wordbook() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/words/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("削除に失敗しました");
-      }
-
+      await deleteWord(id);
       setWords((prevWords) => prevWords.filter((word) => word.id !== id));
     } catch (error) {
       alert("削除時にエラーが発生しました");

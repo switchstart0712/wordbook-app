@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import BackToHomeButton from "./components/BackToHomeButton";
 import PronounceButton from "./components/PronounceButton";
+import { getQuizWords,markWordAsMistaken, } from "../api/quiz";
 
 // クイズページ// src/pages/Quiz.jsx
 function Quiz() {
@@ -25,8 +26,7 @@ function Quiz() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch("http://localhost:8000/words");
-        const data = await response.json();
+        const data = await getQuizWords();
         setWords(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("単語の取得に失敗しました", error);
@@ -116,9 +116,7 @@ function Quiz() {
 
   try {
     for (const id of incorrectWordIds) {
-      await fetch(`http://localhost:8000/words/${id}/mistake`, {
-        method: "PATCH",
-      });
+      await markWordAsMistaken(id);
     }
   } catch (err) {
     console.error("mistakeCount 更新に失敗しました", err);

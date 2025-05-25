@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { fetchDefinition, registerWord } from "../api/search";
 import PronounceButton from "./components/PronounceButton";
 import BackToHomeButton from "./components/BackToHomeButton";
 
@@ -16,8 +17,7 @@ function Search() {
     setResult(null);
 
     try {
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchTerm.trim()}`);
-      const data = await response.json();
+      const data = await fetchDefinition(searchTerm.trim());
 
       if (!data || data.title === "No Definitions Found") {
         setError("意味が見つかりませんでした。");
@@ -41,19 +41,7 @@ function Search() {
     if (!result) return;
 
     try {
-      const res = await fetch("http://localhost:8000/words", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          word: result.word,
-          meaning: result.meaning,
-          memo: "",
-          mistakeCount: 0
-        }),
-      });
-
-      if (!res.ok) throw new Error("登録に失敗しました");
-
+      await registerWord(result.word, result.meaning);
       alert("登録しました！");
     } catch (err) {
       console.error("登録エラー:", err);
