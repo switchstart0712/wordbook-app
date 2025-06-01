@@ -1,4 +1,6 @@
 // クイズAPI関連
+
+//axiosを導入することでbaseURLやContent-Typeの指定を毎回書かずに済み、保守性も上がる
 import axios from "./axios"; // 共通のaxiosインスタンスを使う
 
 // 外部辞書APIから意味を取得
